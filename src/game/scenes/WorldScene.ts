@@ -6,6 +6,7 @@ import { WORLD_HEIGHT, WORLD_WIDTH } from "@/game/constants/world";
 import { Player } from "@/game/entities/player/Player";
 import { Inventory } from "@/game/inventory/Inventory";
 import { Pet } from "@/game/pets/Pet";
+import { PetFollower } from "@/game/pets/PetFollower";
 
 /**
  * Main gameplay scene. Spawns the world, player, camera, and runs the update loop.
@@ -25,6 +26,7 @@ export class WorldScene extends Phaser.Scene {
     three: Phaser.Input.Keyboard.Key;
     four: Phaser.Input.Keyboard.Key;
   };
+  private bunnyFollower!: PetFollower;
 
   constructor() {
     super({ key: "WorldScene" });
@@ -87,10 +89,22 @@ export class WorldScene extends Phaser.Scene {
       ),
     };
 
+    this.bunnyFollower = new PetFollower(
+      this,
+      this.player.sprite.x - 50,
+      this.player.sprite.y - 50
+    );
+
   }
 
   update(time: number, delta: number) {
     this.player.update(delta, WORLD_WIDTH, WORLD_HEIGHT);
+    this.bunnyFollower.update(
+      this.player.sprite.x - 40,
+      this.player.sprite.y - 40,
+      delta
+    );
+    
     this.fruits = this.fruits.filter((fruit) => {
       const distance = Phaser.Math.Distance.Between(
         this.player.sprite.x,
