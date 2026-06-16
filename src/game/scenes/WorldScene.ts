@@ -5,6 +5,7 @@ import { FruitSpawner } from "@/game/collectibles/FruitSpawner";
 import { WORLD_HEIGHT, WORLD_WIDTH } from "@/game/constants/world";
 import { Player } from "@/game/entities/player/Player";
 import { Inventory } from "@/game/inventory/Inventory";
+import { Pet } from "@/game/pets/Pet";
 
 /**
  * Main gameplay scene. Spawns the world, player, camera, and runs the update loop.
@@ -15,6 +16,9 @@ export class WorldScene extends Phaser.Scene {
   private collectedCount = 0;
   private inventory = new Inventory();
   private inventoryText!: Phaser.GameObjects.Text;
+  private pet = new Pet();
+  private petText!: Phaser.GameObjects.Text;
+  private lastPetTick = 0;
 
   constructor() {
     super({ key: "WorldScene" });
@@ -44,10 +48,26 @@ export class WorldScene extends Phaser.Scene {
     );
 
     this.inventoryText.setScrollFactor(0);
+    this.inventoryText.setDepth(999);
     this.updateInventoryUI();
+
+    this.petText = this.add.text(
+      16,
+      120,
+      "",
+      {
+        color: "#ffffff",
+        fontSize: "20px",
+      }
+    );
+    
+    this.petText.setScrollFactor(0);
+    this.petText.setDepth(999);
+    
+    this.updatePetUI();
   }
 
-  update(_time: number, delta: number) {
+  update(time: number, delta: number) {
     this.player.update(delta, WORLD_WIDTH, WORLD_HEIGHT);
     this.fruits = this.fruits.filter((fruit) => {
       const distance = Phaser.Math.Distance.Between(
@@ -76,10 +96,21 @@ export class WorldScene extends Phaser.Scene {
         fruit.destroy();
     
         return false;
+
+        
       }
     
       return true;
     });
+
+    const PET_TICK_INTERVAL = 30000;
+
+    if (time - this.lastPetTick > PET_TICK_INTERVAL) {
+      this.pet.tick();
+      this.updatePetUI();
+  
+      this.lastPetTick = time;
+    }
   }
 
 
@@ -99,5 +130,14 @@ export class WorldScene extends Phaser.Scene {
         `🍓 ${items.berry}`,
       ].join("\n")
     );
+  }
+
+  private updatePetUI() {
+    this.petText.setText([
+      `${this.pet.type} ${this.pet.name}`,
+      `❤️ ${this.pet.happiness}`,
+      `🍖 ${this.pet.hunger}`,
+      `⚡ ${this.pet.energy}`,
+    ]);
   }
 }
