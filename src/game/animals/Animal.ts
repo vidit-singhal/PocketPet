@@ -6,6 +6,7 @@ export type AnimalType =
   | "fox";
 
 export class Animal {
+  public label: Phaser.GameObjects.Text;
   public sprite:
     | Phaser.GameObjects.Rectangle
     | Phaser.GameObjects.Triangle
@@ -58,14 +59,22 @@ export class Animal {
         break;
     }
 
-    scene.add.text(
-      x - 20,
-      y - 30,
+    this.label = scene.add.text(
+      x,
+      y - 25,
       type,
       {
         fontSize: "12px",
         color: "#ffffff",
       }
     );
+    
+    this.label.setOrigin(0.5);
   }
+
+  destroy() {
+    this.sprite.destroy();
+    this.label.destroy();
+  }
+  
 }

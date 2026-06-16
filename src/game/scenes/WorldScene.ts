@@ -10,6 +10,7 @@ import { PetFollower } from "@/game/pets/PetFollower";
 import { Animal } from "@/game/animals/Animal";
 import { AnimalSpawner } from "@/game/animals/AnimalSpawner";
 
+
 /**
  * Main gameplay scene. Spawns the world, player, camera, and runs the update loop.
  */
@@ -30,6 +31,7 @@ export class WorldScene extends Phaser.Scene {
   };
   private bunnyFollower!: PetFollower;
   private animals: Animal[] = [];
+  private interactKey!: Phaser.Input.Keyboard.Key;
 
 
 
@@ -109,6 +111,11 @@ export class WorldScene extends Phaser.Scene {
       WORLD_HEIGHT
     );
 
+    this.interactKey =
+      this.input.keyboard!.addKey(
+        Phaser.Input.Keyboard.KeyCodes.E
+      );
+
   }
 
 
@@ -168,6 +175,8 @@ export class WorldScene extends Phaser.Scene {
     }
 
     this.handleFeeding();
+
+    this.handleAnimalTaming();
   }
 
 
@@ -246,5 +255,70 @@ export class WorldScene extends Phaser.Scene {
         this.updatePetUI();
       }
     }
+  }
+
+  private handleAnimalTaming() {
+    if (
+      !Phaser.Input.Keyboard.JustDown(
+        this.interactKey
+      )
+    ) {
+      return;
+    }
+  
+    this.animals = this.animals.filter(
+      (animal) => {
+        const distance =
+          Phaser.Math.Distance.Between(
+            this.player.sprite.x,
+            this.player.sprite.y,
+            animal.sprite.x,
+            animal.sprite.y
+          );
+  
+        if (distance > 50) {
+          return true;
+        }
+  
+        let tamed = false;
+  
+        switch (animal.type) {
+          case "bunny":
+            tamed =
+              this.inventory.remove(
+                "carrot"
+              );
+            break;
+  
+          case "squirrel":
+            tamed =
+              this.inventory.remove(
+                "nut"
+              );
+            break;
+  
+          case "fox":
+            tamed =
+              this.inventory.remove(
+                "berry"
+              );
+            break;
+        }
+  
+        if (tamed) {
+          console.log(
+            `🎉 Tamed ${animal.type}!`
+          );
+  
+          this.updateInventoryUI();
+  
+          animal.destroy();
+  
+          return false;
+        }
+  
+        return true;
+      }
+    );
   }
 }
