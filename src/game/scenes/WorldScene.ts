@@ -19,6 +19,12 @@ export class WorldScene extends Phaser.Scene {
   private pet = new Pet();
   private petText!: Phaser.GameObjects.Text;
   private lastPetTick = 0;
+  private feedKeys!: {
+    one: Phaser.Input.Keyboard.Key;
+    two: Phaser.Input.Keyboard.Key;
+    three: Phaser.Input.Keyboard.Key;
+    four: Phaser.Input.Keyboard.Key;
+  };
 
   constructor() {
     super({ key: "WorldScene" });
@@ -65,6 +71,22 @@ export class WorldScene extends Phaser.Scene {
     this.petText.setDepth(999);
     
     this.updatePetUI();
+
+    this.feedKeys = {
+      one: this.input.keyboard!.addKey(
+        Phaser.Input.Keyboard.KeyCodes.ONE
+      ),
+      two: this.input.keyboard!.addKey(
+        Phaser.Input.Keyboard.KeyCodes.TWO
+      ),
+      three: this.input.keyboard!.addKey(
+        Phaser.Input.Keyboard.KeyCodes.THREE
+      ),
+      four: this.input.keyboard!.addKey(
+        Phaser.Input.Keyboard.KeyCodes.FOUR
+      ),
+    };
+
   }
 
   update(time: number, delta: number) {
@@ -111,6 +133,8 @@ export class WorldScene extends Phaser.Scene {
   
       this.lastPetTick = time;
     }
+
+    this.handleFeeding();
   }
 
 
@@ -139,5 +163,55 @@ export class WorldScene extends Phaser.Scene {
       `🍖 ${this.pet.hunger}`,
       `⚡ ${this.pet.energy}`,
     ]);
+  }
+
+  private handleFeeding() {
+    if (
+      Phaser.Input.Keyboard.JustDown(
+        this.feedKeys.one
+      )
+    ) {
+      if (this.inventory.remove("apple")) {
+        this.pet.feedApple();
+        this.updateInventoryUI();
+        this.updatePetUI();
+      }
+    }
+  
+    if (
+      Phaser.Input.Keyboard.JustDown(
+        this.feedKeys.two
+      )
+    ) {
+      if (this.inventory.remove("carrot")) {
+        this.pet.feedCarrot();
+        this.updateInventoryUI();
+        this.updatePetUI();
+      }
+    }
+  
+    if (
+      Phaser.Input.Keyboard.JustDown(
+        this.feedKeys.three
+      )
+    ) {
+      if (this.inventory.remove("nut")) {
+        this.pet.feedNut();
+        this.updateInventoryUI();
+        this.updatePetUI();
+      }
+    }
+  
+    if (
+      Phaser.Input.Keyboard.JustDown(
+        this.feedKeys.four
+      )
+    ) {
+      if (this.inventory.remove("berry")) {
+        this.pet.feedBerry();
+        this.updateInventoryUI();
+        this.updatePetUI();
+      }
+    }
   }
 }
